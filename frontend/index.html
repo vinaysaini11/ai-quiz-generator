@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Quiz Generator | Adaptive Learning</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Navigation Header -->
+    <header class="app-header">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <div>
+          <h1>AI Quiz Generator</h1>
+          <p class="subtitle">Adaptive Source-Grounded Learning Loop</p>
+        </div>
+      </div>
+      <div class="header-status">
+        <span id="system-status-badge" class="badge badge-ready">System Ready</span>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Section 1: Upload & Generation -->
+      <section id="upload-section" class="card active">
+        <div class="card-header">
+          <h2>1. Upload Study Material</h2>
+          <p class="section-desc">Upload your lecture notes, textbook chapters, or article PDF (Max 10MB).</p>
+        </div>
+
+        <div class="upload-dropzone" id="dropzone">
+          <input type="file" id="pdf-input" accept="application/pdf" class="file-input-hidden" />
+          <div class="dropzone-content">
+            <span class="upload-icon">📄</span>
+            <p class="primary-text">Drag & drop your study PDF here, or <label for="pdf-input" class="browse-link">browse</label></p>
+            <p class="secondary-text">Text-based PDF up to 10MB</p>
+          </div>
+          <div id="file-info" class="file-info hidden">
+            <span class="file-name" id="file-name">filename.pdf</span>
+            <span class="file-size" id="file-size">1.2 MB</span>
+            <button type="button" id="remove-file-btn" class="btn-icon">✕</button>
+          </div>
+        </div>
+
+        <!-- Configuration Controls -->
+        <div class="quiz-controls-grid">
+          <div class="control-group">
+            <label>Number of Questions:</label>
+            <div class="pill-selector" id="question-count-selector" role="radiogroup" aria-label="Number of Questions">
+              <button type="button" class="pill-btn active" data-count="10">10</button>
+              <button type="button" class="pill-btn" data-count="20">20</button>
+              <button type="button" class="pill-btn" data-count="30">30</button>
+              <button type="button" class="pill-btn" data-count="50">50</button>
+            </div>
+            <select id="num-questions-select" class="form-select hidden">
+              <option value="10" selected>10 Questions</option>
+              <option value="20">20 Questions</option>
+              <option value="30">30 Questions</option>
+              <option value="50">50 Questions</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label for="difficulty-select">Initial Difficulty:</label>
+            <select id="difficulty-select" class="form-select">
+              <option value="easy">Easy (Foundations)</option>
+              <option value="medium" selected>Medium (Application)</option>
+              <option value="hard">Hard (Deep Recall)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button id="btn-upload-generate" class="btn btn-primary" disabled>
+            <span class="btn-text">Extract & Generate Quiz</span>
+            <span class="spinner hidden" id="upload-spinner"></span>
+          </button>
+        </div>
+
+        <div id="upload-feedback" class="feedback-banner hidden"></div>
+      </section>
+
+      <!-- Section 2: Interactive Quiz View (Initially Hidden) -->
+      <section id="quiz-section" class="card hidden">
+        <div class="quiz-top-bar">
+          <div class="quiz-progress-text">
+            Question <span id="current-q-index">1</span> of <span id="total-q-count">5</span>
+          </div>
+          <div class="quiz-tags">
+            <span id="q-topic-badge" class="badge badge-topic">Topic</span>
+            <span id="q-diff-badge" class="badge badge-diff">Medium</span>
+          </div>
+        </div>
+
+        <div class="progress-bar-container">
+          <div id="quiz-progress-bar" class="progress-bar-fill" style="width: 20%;"></div>
+        </div>
+
+        <div class="question-container">
+          <h3 id="question-text" class="question-title">Question goes here...</h3>
+          <div id="options-container" class="options-list">
+            <!-- Options dynamically injected -->
+          </div>
+        </div>
+
+        <div class="quiz-navigation">
+          <button id="btn-prev-question" class="btn btn-secondary" disabled>← Previous</button>
+          <div class="nav-right">
+            <button id="btn-next-question" class="btn btn-secondary">Next →</button>
+            <button id="btn-submit-quiz" class="btn btn-success hidden">Submit Quiz ✓</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Performance & Weak Topic Analysis (Initially Hidden) -->
+      <section id="results-section" class="card hidden">
+        <div class="results-header">
+          <h2>Quiz Performance Analysis</h2>
+          <p class="section-desc">Grounded assessment breakdown and detected weakness profile.</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Score</span>
+            <span class="metric-value" id="res-score">0 / 0</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Accuracy</span>
+            <span class="metric-value" id="res-accuracy">0%</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Recommended Difficulty</span>
+            <span class="metric-value badge" id="res-next-diff">Medium</span>
+          </div>
+        </div>
+
+        <!-- Knowledge Map & Weak Topics -->
+        <div class="analysis-block">
+          <h3>Knowledge Map & Topic Mastery</h3>
+          <div id="knowledge-map-container" class="knowledge-map-list">
+            <!-- Topic status rows injected dynamically -->
+          </div>
+        </div>
+
+        <!-- Question Review with Teach Me This -->
+        <div class="analysis-block">
+          <h3>Review Answers & Explanations</h3>
+          <div id="review-answers-list" class="review-list">
+            <!-- Questions review cards injected -->
+          </div>
+        </div>
+
+        <!-- Personalized Study Plan Section -->
+        <div class="analysis-block hidden" id="study-plan-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3>📋 Personalized Study Roadmap</h3>
+            <span class="badge" id="sp-total-time" style="background:#e0e7ff; color:#4338ca;">~30 mins</span>
+          </div>
+          <p id="sp-summary" class="study-plan-summary"></p>
+          <div id="sp-sequence-list" class="study-sequence-list">
+            <!-- Steps injected dynamically -->
+          </div>
+          <div class="callout-info" id="sp-recommendation" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="action-row result-actions">
+          <button id="btn-start-adaptive-quiz" class="btn btn-primary">
+            🎯 Generate Targeted Next Quiz
+          </button>
+          <button id="btn-generate-study-plan" class="btn btn-secondary">
+            📋 Personalized Study Plan
+          </button>
+          <button id="btn-toggle-flashcards" class="btn btn-secondary">
+            📇 Practice Flashcards
+          </button>
+          <button id="btn-restart" class="btn btn-outline">
+            Upload New Material
+          </button>
+        </div>
+      </section>
+
+      <!-- Section 4: Flashcards Deck (Initially Hidden) -->
+      <section id="flashcards-section" class="card hidden">
+        <div class="card-header">
+          <h2>Study Flashcards</h2>
+          <p class="section-desc">Click any card to flip between front and back.</p>
+        </div>
+
+        <div class="flashcard-carousel">
+          <div class="flashcard" id="active-flashcard">
+            <div class="flashcard-inner">
+              <div class="flashcard-front">
+                <span class="card-tag" id="fc-topic-front">Topic</span>
+                <p id="fc-front-text">Front prompt here...</p>
+                <span class="flip-hint">Click to flip ↷</span>
+              </div>
+              <div class="flashcard-back">
+                <span class="card-tag" id="fc-topic-back">Answer</span>
+                <p id="fc-back-text">Answer explanation here...</p>
+                <span class="source-tag" id="fc-source-tag">Source: Page 1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flashcard-nav">
+          <button id="btn-fc-prev" class="btn btn-secondary">← Previous</button>
+          <span id="fc-counter">1 / 5</span>
+          <button id="btn-fc-next" class="btn btn-secondary">Next →</button>
+        </div>
+        <div class="action-row">
+          <button id="btn-back-to-results" class="btn btn-outline">Back to Results</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal: "Teach Me This" Micro-Tutor -->
+    <div id="teach-me-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon">💡</span>
+            <h3 id="modal-concept-title">Concept Explanation</h3>
+          </div>
+          <button id="btn-close-modal" class="btn-icon">✕</button>
+        </div>
+        <div class="modal-body" id="modal-body-content">
+          <div class="loading-state" id="modal-loading">
+            <span class="spinner"></span> Grounding explanation from your study material...
+          </div>
+          <div id="modal-loaded-content" class="hidden">
+            <div class="teach-section">
+              <h4>Core Concept</h4>
+              <p id="teach-explanation">Explanation...</p>
+            </div>
+            <div class="teach-section">
+              <h4>Key Idea</h4>
+              <div class="callout callout-info" id="teach-key-idea">Key idea...</div>
+            </div>
+            <div class="teach-section" id="teach-example-container">
+              <h4>Source Example</h4>
+              <blockquote id="teach-example">Example...</blockquote>
+            </div>
+            <div class="teach-section">
+              <h4>Quick Check</h4>
+              <p id="teach-quick-q" class="font-medium">Question...</p>
+              <div id="teach-quick-options" class="quick-options-grid"></div>
+              <div id="teach-quick-feedback" class="hidden quick-feedback"></div>
+            </div>
+            <div class="teach-source" id="teach-source">Source: Page 4</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: "Generate Next Quiz" Adaptive Loading Modal -->
+    <div id="adaptive-loading-modal" class="modal-overlay hidden" aria-live="polite">
+      <div class="modal-card adaptive-loading-card">
+        <div class="modal-header">
+          <div class="modal-title-row">
+            <span class="modal-icon">🎯</span>
+            <h3>Generating Your Next Quiz...</h3>
+          </div>
+        </div>
+        <div class="modal-body adaptive-loading-body">
+          <div class="adaptive-focus-block">
+            <span class="adaptive-label">Focus:</span>
+            <ul id="adaptive-focus-list" class="adaptive-topics-list">
+              <!-- Dynamically populated <li> items -->
+            </ul>
+          </div>
+
+          <div class="adaptive-diff-block">
+            <span class="adaptive-label">Difficulty:</span>
+            <span id="adaptive-diff-display" class="badge badge-diff">Easy</span>
+          </div>
+
+          <p class="adaptive-status-text">Generating questions from your study material...</p>
+
+          <div class="adaptive-spinner-row">
+            <span class="spinner spinner-lg"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+

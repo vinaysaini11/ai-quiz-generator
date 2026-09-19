@@ -1,0 +1,57 @@
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Uploaded Files & User Data (preserve folder via .gitkeep)
+data/uploads/*
+!data/uploads/.gitkeep
+/uploads/
+
+# ChromaDB & Vector Store Data
+data/vector_db/*
+!data/vector_db/.gitkeep
+chroma/
+chroma_db/
+*.chromadb
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs & Temporary Files
+*.log
+*.ses
+tmp/
+temp/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
