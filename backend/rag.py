@@ -9,7 +9,10 @@ from typing import List, Dict, Any, Optional
 import chromadb
 from sentence_transformers import SentenceTransformer
 
-VECTOR_DB_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "vector_db")
+if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    VECTOR_DB_DIR = os.getenv("VECTOR_DB_DIR", "/tmp/data/vector_db")
+else:
+    VECTOR_DB_DIR = os.getenv("VECTOR_DB_DIR", os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "vector_db"))
 os.makedirs(VECTOR_DB_DIR, exist_ok=True)
 
 # Ensure huggingface uses local cached model without network checks

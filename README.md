@@ -259,9 +259,39 @@ Open your browser at **[http://127.0.0.1:8000](http://127.0.0.1:8000)**.
 8. **Personalized Study Plan**: Click "Personalized Study Plan" to review a 3-step prioritized study roadmap.
 9. **Practice Flashcards**: Flip 3D flashcards for quick revision.
 
+## 14. Deployment to Vercel
+
+The application includes native Vercel configuration (`api/index.py`, `vercel.json`).
+
+### Step-by-Step Vercel Deployment
+
+1. **Push your code to GitHub**:
+   ```bash
+   git add api/ vercel.json backend/database.py backend/main.py backend/rag.py README.md
+   git commit -m "Add Vercel serverless deployment configuration"
+   git push origin main
+   ```
+
+2. **Import Project on Vercel**:
+   - Go to [vercel.com](https://vercel.com) and click **"Add New..." > "Project"**.
+   - Import your `AI-Quiz-Generator` GitHub repository.
+   - Leave Framework Preset as **Other** (Vercel automatically detects `vercel.json` and `api/index.py`).
+
+3. **Configure Environment Variables**:
+   Under **Environment Variables** in the Vercel setup screen, add:
+   - `GEMINI_API_KEY` = `<your-google-gemini-api-key>`
+   - `GEMINI_MODEL` = `gemini-2.5-flash` (optional, defaults to `gemini-2.5-flash`)
+
+4. **Deploy**:
+   - Click **Deploy**. Vercel will install dependencies and deploy the ASGI FastAPI application.
+
+### Serverless Architecture Notes
+- **Ephemeral Storage**: Vercel functions execute in ephemeral serverless containers. SQLite (`/tmp/data/quiz_generator.db`) and ChromaDB vector stores operate inside the writable `/tmp` directory. Data is available during active sessions and resets across serverless cold starts.
+- **Production Persistence**: For multi-region persistent production workloads, pair this frontend with a hosted database (e.g. Supabase / Neon PostgreSQL), cloud storage (AWS S3) for PDFs, and a persistent container host (e.g. Render, Railway, or Fly.io).
+
 ---
 
-## 14. Security
+## 15. Security
 
 - **API Key Protection**: `GEMINI_API_KEY` is loaded strictly server-side and never returned in API payloads or sent to the browser.
 - **Git Isolation**: `.env`, `.env.*`, and sensitive files are excluded via `.gitignore`.
@@ -272,7 +302,7 @@ Open your browser at **[http://127.0.0.1:8000](http://127.0.0.1:8000)**.
 
 ---
 
-## 15. Future Improvements
+## 16. Future Improvements
 
 - **User Authentication**: Multi-tenant user accounts with JWT authentication.
 - **Cloud Database**: Migration from SQLite to PostgreSQL / Supabase for distributed persistence.
@@ -280,3 +310,4 @@ Open your browser at **[http://127.0.0.1:8000](http://127.0.0.1:8000)**.
 - **Asynchronous Task Workers**: Celery / Redis queue for heavy background document processing.
 - **Additional File Formats**: Ingestion support for DOCX, PPTX, and EPUB files.
 - **Export Formats**: Anki deck (.apkg) and PDF quiz export options.
+

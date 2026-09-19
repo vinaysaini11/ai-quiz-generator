@@ -6,7 +6,12 @@ import sqlite3
 import os
 from contextlib import contextmanager
 
-DB_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
+# Use /tmp on Vercel or serverless environments where root directory is read-only
+if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    DB_DIR = os.getenv("DATA_DIR", "/tmp/data")
+else:
+    DB_DIR = os.getenv("DATA_DIR", os.path.join(os.path.dirname(os.path.dirname(__file__)), "data"))
+
 DB_PATH = os.path.join(DB_DIR, "quiz_generator.db")
 
 @contextmanager

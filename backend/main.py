@@ -27,7 +27,10 @@ from backend.performance import grade_and_record_attempt, get_attempt_weak_topic
 from backend.teach_me import teach_concept
 from backend.study_plan import generate_study_plan
 
-UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "uploads")
+if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/tmp/data/uploads")
+else:
+    UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "uploads"))
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @asynccontextmanager
